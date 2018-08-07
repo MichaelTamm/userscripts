@@ -10,11 +10,15 @@ You can click on the check mark to collapse/expand a discussion.
 
 (2) Furthermore, if you are the author of the last comment in a discussion, the check mark
 is colored green and the discussion is automatically collapsed, when the page loads. So you
-see only those discussions, which need an answer by you.
+see only those discussions, which need an answer by you. (The discussion will also be collapsed
+when you add a comment.)
 
 [Install](https://github.com/MichaelTamm/userscripts/raw/master/GitHub_Toggle_Discussions/GitHub_Toggle_Discussions.user.js)
 
 # Release Notes #
+
+## Version 1.0.2
+ * A discussion will be collapsed now, when you add a comment.
 
 ## Version 1.0.1
  * Adapted to new CSS classes used in the HTML of github.com

@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        GitHub Toggle Discussions
-// @version     1.0.1
+// @version     1.0.2
 // @license     MIT
 // @author      Michael Tamm
 // @namespace   https://github.com/MichaelTamm
@@ -22,7 +22,7 @@
     `);
 
     const discussionSelector = ".js-comment-container.has-inline-notes";
-    const checkIcon = `<svg class="octicon octicon-check" height="16" viewBox="0 0 12 16" width="12"><path d="M12 5L4 13 0 9l1.5-1.5 2.5 2.5 6.5-6.5 1.5 1.5z"/></svg>`;
+    const checkMarkIcon = `<svg class="octicon octicon-check" height="16" viewBox="0 0 12 16" width="12"><path d="M12 5L4 13 0 9l1.5-1.5 2.5 2.5 6.5-6.5 1.5 1.5z"/></svg>`;
 
     function $(elm_or_selector, selector) {
         if (selector) {
@@ -95,15 +95,19 @@
 
     function run() {
         for (const discussion of $$(discussionSelector)) {
-            if (!$(discussion, ".ghtd-button")) {
-                const button = document.createElement("div");
-                button.className = "ghtd-button";
-                button.innerHTML = checkIcon;
+            let checkMark = $(discussion, ".ghtd-button");
+            if (!checkMark) {
+                checkMark = document.createElement("div");
+                checkMark.className = "ghtd-button";
+                checkMark.innerHTML = checkMarkIcon;
                 const fileHeader = $(discussion, ".file-header");
-                fileHeader.insertBefore(button, fileHeader.firstChild);
-                if (authorOfLastComment(discussion) === currentUser()) {
+                fileHeader.insertBefore(checkMark, fileHeader.firstChild);
+            }
+            if (authorOfLastComment(discussion) === currentUser()) {
+                const svg = $(checkMark, "svg")
+                if (svg.style.fill !== "green") {
                     // Mark discussion ...
-                    $(button, "svg").style = "fill:green";
+                    svg.style.fill = "green";
                     // Collapse discussion ...
                     toggleDiscussion(discussion);
                 }
