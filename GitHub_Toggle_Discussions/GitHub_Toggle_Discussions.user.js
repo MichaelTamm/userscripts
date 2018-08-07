@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        GitHub Toggle Discussions
-// @version     1.0.0
+// @version     1.0.1
 // @license     MIT
 // @author      Michael Tamm
 // @namespace   https://github.com/MichaelTamm
@@ -50,7 +50,7 @@
     }
 
     function toggleDiscussion(discussion) {
-        for (let selector of [".blob-wrapper", ".review-comments"]) {
+        for (let selector of [".blob-wrapper", ".review-comments", ".js-inline-comments-container"]) {
             const container = $(discussion, selector);
             if (container) {
                 if (container.classList.contains("ghtd-hidden")) {

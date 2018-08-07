@@ -16,6 +16,9 @@ see only those discussions, which need an answer by you.
 
 # Release Notes #
 
+## Version 1.0.1
+ * Adapted to new CSS classes used in the HTML of github.com
+
 ## Version 1.0.0
  * Initial release
 
