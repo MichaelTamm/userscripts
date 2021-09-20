@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        GitHub Link To Jira
-// @version     1.0.0
+// @version     1.0.1
 // @license     MIT
 // @author      Michael Tamm
 // @namespace   https://github.com/MichaelTamm
@@ -16,8 +16,6 @@
 (() => {
     "use strict";
 
-    const titleSelector = ".js-issue-title";
-
     function $(elm_or_selector, selector) {
         if (selector) {
             return elm_or_selector.querySelector(selector);
@@ -26,25 +24,39 @@
         }
     }
 
-    function encodeHtml(s) {
-        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-    }
-
-    function linkToJiraIssue(jiraIssue) {
-        return `<a href="https://autovio.atlassian.net/browse/${jiraIssue}">${jiraIssue}</a>`;
+    function linkToJiraIssue(jiraIssue, className) {
+        const a = document.createElement("a");
+        a.href = "https://autovio.atlassian.net/browse/" + jiraIssue;
+        if (className) {
+            a.className = className;
+        }
+        a.textContent = jiraIssue;
+        return a;
     }
 
     function run() {
-        const titleElm = $(titleSelector);
-        if (!$(titleElm, "a")) {
-            const titleText = titleElm.textContent;
-            const m = /APP-[0-9]+/.exec(titleText);
-            if (m) {
-                const jiraIssue = m[0];
-                titleElm.innerHTML =
-                    encodeHtml(titleText.substr(0, m.index)) +
-                    linkToJiraIssue(jiraIssue) +
-                    encodeHtml(titleText.substr(m.index + jiraIssue.length));
+        let titleElm = $(".js-issue-title");
+        let jiraLinkClassName = "";
+        if (!titleElm) {
+            titleElm = $(".commit-title");
+            jiraLinkClassName = "issue-link";
+        }
+        if (titleElm && !titleElm.dataset['linkedToJiraIssue']) {
+            for (let node = titleElm.firstChild; node; node = node.nextSibling) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const s = node.textContent;
+                    const m = /APP-[0-9]+/.exec(s);
+                    if (m) {
+                        const jiraIssue = m[0];
+                        node.replaceWith(
+                            s.substr(0, m.index),
+                            linkToJiraIssue(jiraIssue, jiraLinkClassName),
+                            s.substr(m.index + jiraIssue.length)
+                        );
+                        titleElm.dataset['linkedToJiraIssue'] = 'true';
+                        return;
+                    }
+                }
             }
         }
     }
