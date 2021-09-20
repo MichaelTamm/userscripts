@@ -9,6 +9,9 @@ Well, you can copy and adapt the user script, if you like. ;)
 
 # Release Notes #
 
+## Version 1.0.2
+* Try to extract Jira issue from branch name if not present in title
+
 ## Version 1.0.1
 * No more logged errors if the current page does not have a title
 * Link to Jira issue on commit pages too

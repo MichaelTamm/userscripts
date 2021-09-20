@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        GitHub Link To Jira
-// @version     1.0.1
+// @version     1.0.2
 // @license     MIT
 // @author      Michael Tamm
 // @namespace   https://github.com/MichaelTamm
@@ -16,6 +16,9 @@
 (() => {
     "use strict";
 
+    const JIRA_ISSUE_REG_EXP = /APP-[0-9]+/;
+    const JIRA_ISSUE_LINK_PREFIX = "https://autovio.atlassian.net/browse/";
+
     function $(elm_or_selector, selector) {
         if (selector) {
             return elm_or_selector.querySelector(selector);
@@ -24,9 +27,17 @@
         }
     }
 
+    function $$(elm_or_selector, selector) {
+        if (selector) {
+            return Array.from(elm_or_selector.querySelectorAll(selector));
+        } else {
+            return Array.from(document.querySelectorAll(elm_or_selector));
+        }
+    }
+
     function linkToJiraIssue(jiraIssue, className) {
         const a = document.createElement("a");
-        a.href = "https://autovio.atlassian.net/browse/" + jiraIssue;
+        a.href = JIRA_ISSUE_LINK_PREFIX + jiraIssue;
         if (className) {
             a.className = className;
         }
@@ -37,26 +48,46 @@
     function run() {
         let titleElm = $(".js-issue-title");
         let jiraLinkClassName = "";
-        if (!titleElm) {
+        let jiraIssue = "";
+        if (titleElm) {
+            // If the Jira issue is not in the title, we might be able to extract it from the branch name ...
+            const header = $('.gh-header-meta');
+            if (header) {
+                const commitRefs = $$(header, ".commit-ref");
+                if (commitRefs.length === 2) {
+                    const branchName = commitRefs[1].textContent;
+                    const m = JIRA_ISSUE_REG_EXP.exec(branchName);
+                    if (m) {
+                        jiraIssue = m[0];
+                    }
+                }
+            }
+        } else {
             titleElm = $(".commit-title");
             jiraLinkClassName = "issue-link";
         }
         if (titleElm && !titleElm.dataset['linkedToJiraIssue']) {
             for (let node = titleElm.firstChild; node; node = node.nextSibling) {
                 if (node.nodeType === Node.TEXT_NODE) {
-                    const s = node.textContent;
-                    const m = /APP-[0-9]+/.exec(s);
+                    const title = node.textContent;
+                    const m = JIRA_ISSUE_REG_EXP.exec(title);
                     if (m) {
                         const jiraIssue = m[0];
                         node.replaceWith(
-                            s.substr(0, m.index),
+                            title.substr(0, m.index),
                             linkToJiraIssue(jiraIssue, jiraLinkClassName),
-                            s.substr(m.index + jiraIssue.length)
+                            title.substr(m.index + jiraIssue.length)
                         );
                         titleElm.dataset['linkedToJiraIssue'] = 'true';
                         return;
                     }
                 }
+            }
+            if (jiraIssue) {
+                titleElm.append(" (");
+                titleElm.append(linkToJiraIssue(jiraIssue));
+                titleElm.append(")");
+                titleElm.dataset['linkedToJiraIssue'] = 'true';
             }
         }
     }
