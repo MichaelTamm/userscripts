@@ -1,7 +1,7 @@
 # GitLab Link to Jira #
 
 Replaces the first occurrence of a Jira issue id in the title
-of a pull request/commit with a link to the Jira issue.
+of a merge request with a link to the Jira issue.
 
 Only useful for [AUTOVIO](https://autovio.de) developers.
 
